@@ -1,15 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { dashboardRequest } from "../../redux/actions/Action";
 import { Container } from "@mui/system";
-import { alpha, styled } from "@mui/material/styles";
-import InputBase from "@mui/material/InputBase";
-import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import { Button, FormHelperText, Grid, InputAdornment, OutlinedInput } from "@mui/material";
+import "./styles.scss";
+import {
+  Button,
+  FormHelperText,
+  Grid,
+  InputAdornment,
+  OutlinedInput,
+} from "@mui/material";
 import CustomSelect from "../../Components/CustomSelect";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+import Breadcrumbs from "@mui/material/Breadcrumbs";
+import Link from "@mui/material/Link";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+dayjs.extend(isBetween);
 
 const columns = [
   { field: "logId", headerName: "Log ID", width: 150 },
@@ -42,143 +53,271 @@ const columns = [
     sortable: false,
     width: 230,
     valueGetter: (params) =>
-      `${params.row.creationTimestamp.split(" ")[0]} / ${params.row.creationTimestamp.split(" ")[1]
+      `${params.row.creationTimestamp.split(" ")[0]} / ${
+        params.row.creationTimestamp.split(" ")[1]
       }`,
   },
 ];
-
 
 export const Dashboard = () => {
   const {
     data: { loading, result = {} },
   } = useSelector(({ dashboard }) => dashboard);
   const dispatch = useDispatch();
+  const initFilterActions = {
+    name: "",
+    actionType: "",
+    applicationType: "",
+    startDate: "",
+    endDate: "",
+    id: "",
+  };
+  const [filterActions, setFilterActions] = useState(initFilterActions);
+  const [tableData, setTableData] = useState([]);
+  const [actionTypeData, setActionTypeData] = useState([]);
+  const [applicationTypeData, setApplicationTypeData] = useState([]);
+
+  const { name, actionType, applicationType, startDate, endDate, id } =
+    filterActions;
+  const handleFilter = () => {
+    let filterData = result?.auditLog;
+    if (name)
+      filterData = filterData?.filter((td) =>
+        td?.logId?.toString().toLowerCase().startsWith(name.toLowerCase())
+      );
+
+    if (id)
+      filterData = filterData?.filter((td) =>
+        td?.applicationId?.toString().toLowerCase().startsWith(id.toLowerCase())
+      );
+
+    if (actionType)
+      filterData = filterData?.filter((td) => td?.actionType === actionType);
+
+    if (applicationType)
+      filterData = filterData?.filter(
+        (td) => td?.applicationType === applicationType
+      );
+
+    if (startDate || endDate)
+      filterData = filterData?.filter((td) =>
+        td?.creationTimestamp
+          ? dayjs(td?.creationTimestamp).isBetween(
+              startDate ? dayjs(startDate) : dayjs(),
+              endDate ? dayjs(endDate) : dayjs()
+            )
+          : false
+      );
+    setTableData(filterData);
+  };
+
+  const handleChange = ({ target: { name, value } }) => {
+    setFilterActions({
+      ...filterActions,
+      [name]: value,
+    });
+  };
+
   useEffect(() => {
     dispatch(dashboardRequest());
   }, []);
+
+  useEffect(() => {
+    if (result?.auditLog?.length > 0) {
+      setTableData(result.auditLog);
+
+      const typeAction = [];
+      const typeApplication = [];
+      result?.auditLog.map((d) => {
+        if (d.actionType)
+          typeAction.push({ value: d.actionType, lable: d.actionType });
+        if (d.applicationType)
+          typeApplication.push({
+            value: d.applicationType,
+            lable: d.applicationType,
+          });
+      });
+      const sortedTypeAction = typeAction.filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.value === value.value)
+      );
+      const sortTypeApplication = typeApplication.filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.value === value.value)
+      );
+      setActionTypeData(sortedTypeAction);
+      setApplicationTypeData(sortTypeApplication);
+    }
+  }, [result.auditLog]);
+
   return (
-    <Container>
-      <Grid container spacing={1}>
+    <Container maxWidth="xl" className="page-top-space">
+      <div className="breadcrumb-wrapper">
+        <Stack spacing={2}>
+          <Breadcrumbs separator="›" aria-label="breadcrumb">
+            {[
+              <Link underline="hover" key="1" color="inherit" href="/">
+                MUI
+              </Link>,
+              <Link
+                underline="hover"
+                key="2"
+                color="inherit"
+                href="/material-ui/getting-started/installation/"
+              >
+                Core
+              </Link>,
+              <Typography key="3" color="text.primary">
+                Breadcrumb
+              </Typography>,
+            ]}
+          </Breadcrumbs>
+        </Stack>
+      </div>
+      <Grid container spacing={2} className="filter-action-wrapper">
         <Grid item xs>
-          <FormControl sx={{ m: 1, width: '18ch' }} variant="outlined">
-            <FormHelperText id="outlined-weight-helper-text"
-              sm={{ mb: 2 }} style={{ color: "#000",marginLeft:0}}
-            >Employee Name</FormHelperText>
+          <FormControl variant="outlined">
+            <FormHelperText
+              sm={{ mb: 2 }}
+              style={{ color: "#000", marginLeft: 0 }}
+            >
+              Employee Name
+            </FormHelperText>
             <OutlinedInput
               placeholder="e.g.Admin.User"
-              id="outlined-adornment-weight"
-              // value={values.weight}
-              // onChange={handleChange('weight')}
+              name="name"
+              value={name}
+              onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
               style={{
                 height: 30,
               }}
             />
-
           </FormControl>
         </Grid>
-        <Grid item xs sx={{ m: 1, width: '18ch',marginTop:1.5 }}>
-          <InputLabel sm={{ mb: 2 }} style={{ color: "#000" ,fontSize:12,}}>
+        <Grid item xs>
+          <FormHelperText
+            id="outlined-weight-helper-text"
+            sm={{ mb: 2 }}
+            style={{ color: "#000", marginLeft: 0 }}
+          >
             Action Type
-          </InputLabel>
+          </FormHelperText>
           <CustomSelect
-            options={[
-              { value: "ASAP", lable: "ASAP" },
-              { value: "Within 1 Months", lable: "Within 1 Months" },
-              { value: "Within 6 Months", lable: "Within 6 Months" },
-              { value: "Within 12 Months", lable: "Within 12 Months" },
-            ]}
-            name="rating"
-            // onChange={handleChange}
-            // value={data.rating}
+            options={actionTypeData}
+            name="actionType"
+            onChange={handleChange}
+            value={actionType}
             placeholder="SELECT"
             style={{
-              height: 30
+              height: 30,
             }}
           />
         </Grid>
-        <Grid item xs sx={{ m: 1, width: '18ch',marginTop:1.5 }}>
-        <InputLabel sm={{ mb: 2 }} style={{ color: "#000" ,fontSize:12}}>
+        <Grid item xs>
+          <FormHelperText
+            id="outlined-weight-helper-text"
+            sm={{ mb: 2 }}
+            style={{ color: "#000", marginLeft: 0 }}
+          >
             Application Type
-          </InputLabel>
+          </FormHelperText>
           <CustomSelect
-            options={[
-              { value: "ASAP", lable: "ASAP" },
-              { value: "Within 1 Months", lable: "Within 1 Months" },
-              { value: "Within 6 Months", lable: "Within 6 Months" },
-              { value: "Within 12 Months", lable: "Within 12 Months" },
-            ]}
-            name="rating"
-            // onChange={handleChange}
-            // value={data.rating}
+            options={applicationTypeData}
+            name="applicationType"
+            onChange={handleChange}
+            value={applicationType}
             placeholder="SELECT"
             style={{
-              height: 30
+              height: 30,
             }}
           />
         </Grid>
         <Grid item xs>
-          <FormControl sx={{ m: 1, width: '18ch' }} variant="outlined">
-            <FormHelperText id="outlined-weight-helper-text"
-              sm={{ mb: 2 }} style={{ color: "#000" ,marginLeft:0}}
-            >From Date</FormHelperText>
+          <FormControl variant="outlined">
+            <FormHelperText
+              id="outlined-weight-helper-text"
+              sm={{ mb: 2 }}
+              style={{ color: "#000", marginLeft: 0 }}
+            >
+              From Date
+            </FormHelperText>
             <OutlinedInput
+              type="date"
               placeholder="Select Date"
-              id="outlined-adornment-weight"
-              // value={values.weight}
-              // onChange={handleChange('weight')}
+              name="startDate"
+              value={startDate}
+              onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
               style={{
-                height: 30
+                height: 30,
+                width: "100%",
               }}
             />
-
           </FormControl>
         </Grid>
         <Grid item xs>
-          <FormControl sx={{ m: 1, width: '18ch' }} variant="outlined">
-            <FormHelperText id="outlined-weight-helper-text"
-              sm={{ mb: 2 }} style={{ color: "#000",marginLeft:0 }}
-            >To Date</FormHelperText>
+          <FormControl variant="outlined" style={{ width: "100%" }}>
+            <FormHelperText
+              sm={{ mb: 2 }}
+              style={{ color: "#000", marginLeft: 0 }}
+            >
+              To Date
+            </FormHelperText>
             <OutlinedInput
               placeholder="Select Date"
-              id="outlined-adornment-weight"
-              // value={values.weight}
-              // onChange={handleChange('weight')}
+              name="endDate"
+              type="date"
+              value={endDate}
+              onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
               style={{
-                height: 30
+                height: 30,
+                width: "100%",
               }}
             />
-
           </FormControl>
         </Grid>
         <Grid item xs>
-          <FormControl sx={{ m: 1, width: '18ch' }} variant="outlined">
-            <FormHelperText id="outlined-weight-helper-text"
-              sm={{ mb: 2 }} style={{ color: "#000",marginLeft:0 }}
-            >Application ID</FormHelperText>
+          <FormControl variant="outlined">
+            <FormHelperText
+              sm={{ mb: 2 }}
+              style={{ color: "#000", marginLeft: 0 }}
+            >
+              Application ID
+            </FormHelperText>
             <OutlinedInput
               placeholder="e.g.219841/2021"
-              id="outlined-adornment-weight"
-              // value={values.weight}
-              // onChange={handleChange('weight')}
+              value={id}
+              name="id"
+              onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
               style={{
-                height: 30
+                height: 30,
               }}
             />
-
           </FormControl>
         </Grid>
         <Grid item xs>
-        <Button variant="contained" sx={{ m: 1, width: '18ch' }} style={{marginTop:30,textTransform:'capitalize',height:30}}>Search Logger</Button>
+          <Button
+            variant="contained"
+            style={{
+              marginTop: 22,
+              textTransform: "capitalize",
+              height: 30,
+              width: "100%",
+            }}
+            onClick={handleFilter}
+          >
+            Search Logger
+          </Button>
         </Grid>
       </Grid>
-      <Box sx={{ height: 650, width: "100%", boxShadow: 3 }}>
+      <Box sx={{ width: "100%", boxShadow: 3 }}>
         <DataGrid
+          autoHeight
           getRowId={(i) => i.logId}
-          rows={result.auditLog || []}
+          rows={tableData}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10]}

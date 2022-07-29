@@ -4,7 +4,6 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
-import cs from "classnames";
 import "./styles.scss";
 
 const CustomSelect = ({
@@ -19,16 +18,21 @@ const CustomSelect = ({
   return (
     <>
       <FormControl
-        sx={{ m: 1, minWidth: "100%", maxWidth: 300,marginLeft:0,margin:0.2 }}
+        sx={{
+          m: 1,
+          minWidth: "100%",
+          maxWidth: 300,
+          marginLeft: 0,
+          margin: 0,
+        }}
         // className={cs("customSelectWrapper", { ["noBorder"]: !widthBorder })}
       >
-        {!displayEmpty && label && <InputLabel >{label}</InputLabel>}
+        {!displayEmpty && label && <InputLabel>{label}</InputLabel>}
         <Select
           displayEmpty={displayEmpty}
           inputProps={{ "aria-label": "Without label" }}
           size={size}
           variant="outlined"
-          classes={{ root: "testing123" }}
           {...res}
         >
           {placeholder && (

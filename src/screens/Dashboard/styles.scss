@@ -1,0 +1,17 @@
+.page-top-space {
+  padding-top: 50px;
+  .filter-action-wrapper {
+    margin-bottom: 20px;
+  }
+  .breadcrumb-wrapper {
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0;
+    * {
+      color: #a2a2a2;
+    }
+    a {
+      color: #376dd0;
+    }
+  }
+}

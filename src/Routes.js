@@ -12,6 +12,5 @@ export default [
     path: "*",
     name: "dashboard",
     component: Dashboard,
-    isPrivate: true,
   },
 ];
