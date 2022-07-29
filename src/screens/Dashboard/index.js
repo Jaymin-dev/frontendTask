@@ -157,18 +157,13 @@ export const Dashboard = () => {
           <Breadcrumbs separator="›" aria-label="breadcrumb">
             {[
               <Link underline="hover" key="1" color="inherit" href="/">
-                MUI
+                Home
               </Link>,
-              <Link
-                underline="hover"
-                key="2"
-                color="inherit"
-                href="/material-ui/getting-started/installation/"
-              >
-                Core
+              <Link underline="hover" key="2" color="inherit" href="/material-">
+                Administration
               </Link>,
               <Typography key="3" color="text.primary">
-                Breadcrumb
+                Logger search
               </Typography>,
             ]}
           </Breadcrumbs>
@@ -188,6 +183,7 @@ export const Dashboard = () => {
               name="name"
               value={name}
               onChange={handleChange}
+              autoComplete={false}
               aria-describedby="outlined-weight-helper-text"
               style={{
                 height: 30,
@@ -247,6 +243,7 @@ export const Dashboard = () => {
               placeholder="Select Date"
               name="startDate"
               value={startDate}
+              autoComplete={false}
               onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
               style={{
@@ -268,6 +265,7 @@ export const Dashboard = () => {
               placeholder="Select Date"
               name="endDate"
               type="date"
+              autoComplete={false}
               value={endDate}
               onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
@@ -290,6 +288,7 @@ export const Dashboard = () => {
               placeholder="e.g.219841/2021"
               value={id}
               name="id"
+              autoComplete={false}
               onChange={handleChange}
               aria-describedby="outlined-weight-helper-text"
               style={{
