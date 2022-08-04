@@ -23,35 +23,35 @@ import Typography from "@mui/material/Typography";
 dayjs.extend(isBetween);
 
 const columns = [
-  { field: "logId", headerName: "Log ID", width: 150 },
+  { field: "logId", headerName: "Log ID", flex: 1 },
   {
     field: "applicationType",
     headerName: "Application Type",
-    width: 200,
+    flex: 1,
   },
   {
     field: "applicationID",
     headerName: "Application ID",
-    width: 150,
+    flex: 1,
     valueGetter: (params) =>
       params.row.applicationId ? params.row.applicationId : "-/-",
   },
   {
     field: "actionType",
     headerName: "Action",
-    width: 200,
+    flex: 1,
   },
   {
     field: "source",
     headerName: "Action Details",
-    width: 110,
+    flex: 1,
     valueGetter: (params) => (params.row.source ? params.row.source : "-/-"),
   },
   {
     field: "creationTime",
     headerName: "Date : Time",
     sortable: false,
-    width: 230,
+    flex: 1,
     valueGetter: (params) =>
       `${params.row.creationTimestamp.split(" ")[0]} / ${
         params.row.creationTimestamp.split(" ")[1]
@@ -185,8 +185,9 @@ export const Dashboard = () => {
               onChange={handleChange}
               autoComplete={false}
               aria-describedby="outlined-weight-helper-text"
+              classes={{ input: "input-padding" }}
               style={{
-                height: 30,
+                height: 40,
               }}
             />
           </FormControl>
@@ -205,8 +206,9 @@ export const Dashboard = () => {
             onChange={handleChange}
             value={actionType}
             placeholder="SELECT"
+            className="inputSelect"
             style={{
-              height: 30,
+              height: 40,
             }}
           />
         </Grid>
@@ -223,9 +225,11 @@ export const Dashboard = () => {
             name="applicationType"
             onChange={handleChange}
             value={applicationType}
+            classes={{ input: "testing" }}
+            className="inputSelect"
             placeholder="SELECT"
             style={{
-              height: 30,
+              height: 40,
             }}
           />
         </Grid>
@@ -245,9 +249,10 @@ export const Dashboard = () => {
               value={startDate}
               autoComplete={false}
               onChange={handleChange}
+              classes={{ input: "input-padding" }}
               aria-describedby="outlined-weight-helper-text"
               style={{
-                height: 30,
+                height: 40,
                 width: "100%",
               }}
             />
@@ -268,9 +273,10 @@ export const Dashboard = () => {
               autoComplete={false}
               value={endDate}
               onChange={handleChange}
+              classes={{ input: "input-padding" }}
               aria-describedby="outlined-weight-helper-text"
               style={{
-                height: 30,
+                height: 40,
                 width: "100%",
               }}
             />
@@ -290,9 +296,10 @@ export const Dashboard = () => {
               name="id"
               autoComplete={false}
               onChange={handleChange}
+              classes={{ input: "input-padding" }}
               aria-describedby="outlined-weight-helper-text"
               style={{
-                height: 30,
+                height: 40,
               }}
             />
           </FormControl>
@@ -303,7 +310,7 @@ export const Dashboard = () => {
             style={{
               marginTop: 22,
               textTransform: "capitalize",
-              height: 30,
+              height: 40,
               width: "100%",
             }}
             onClick={handleFilter}
@@ -312,7 +319,7 @@ export const Dashboard = () => {
           </Button>
         </Grid>
       </Grid>
-      <Box sx={{ width: "100%", boxShadow: 3 }}>
+      <Box sx={{ width: "100%", boxShadow: 3, borderRadius: 4 }}>
         <DataGrid
           autoHeight
           getRowId={(i) => i.logId}
@@ -322,6 +329,8 @@ export const Dashboard = () => {
           rowsPerPageOptions={[10]}
           disableSelectionOnClick
           loading={loading}
+          style={{ borderRadius: 14 }}
+          classes={{ footerContainer: "justifyCenter" }}
         />
       </Box>
     </Container>
